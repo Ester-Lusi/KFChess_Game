@@ -1,0 +1,22 @@
+# === Python (Byte-compiled / optimized / venv) ===
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# === VS Code המלצות הגדרה מקומיות ===
+.vscode/
+# הערה: אם תרצו לשתף קונפיגורציית דיבאג קבועה של הצוות, ניתן להסיר, 
+# אך מומלץ להתעלם כיוון שזה מכיל לרוב נתיבים מקומיים של המפתח.
+
+# === testing & Coverage ===
+.pytest_cache/
+.coverage
+htmlcov/
+
+# === קבצי מערכת הפעלה מקומיים ===
+.DS_Store
+Thumbs.db
