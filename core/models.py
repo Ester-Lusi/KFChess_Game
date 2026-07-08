@@ -10,5 +10,9 @@ class Position:
 # בעתיד נוכל להוסיף כאן שדות נוספים כמו צבע החלקה, סוג החלקה, או אסטרטגיות תנועה
 @dataclass(frozen=True)
 class Piece:
-    symbol: str  # 'P' / 'R' / 'k'
-    # בעתיד יכיל סוגים נוספים של החלקה, צבע, או תכונות אחרות של החלקה
+    symbol: str 
+    
+    # בעתיד נוכל להוסיף כאן שדות נוספים כמו צבע החלקה, סוג החלקה, או אסטרטגיות תנועה
+    @property
+    def color(self) -> str:
+        return self.symbol[0]

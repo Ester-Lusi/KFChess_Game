@@ -1,3 +1,4 @@
+import sys
 from typing import List
 from core.interfaces import IBoardRepresentation
 from core.board import TextGridBoardAdapter
@@ -45,8 +46,9 @@ class BoardParser:
 
         # בדיקת תקינות מימדי הלוח
         if not all(len(row) == num_cols for row in board_lines):
-            raise ValueError(ERROR_ROW_WIDTH_MISMATCH)
-
+            # הודעת שגיאה מפורטת לערוץ השגיאות הסטנדרטי 
+            print(f"[DEBUG ERROR] Row width mismatch detected during parsing. Expected width: {num_cols}", file=sys.stderr)
+            return TextGridBoardAdapter(0, 0, error_state=ERROR_ROW_WIDTH_MISMATCH)
 
         # יצירת הלוח דרך הממשק האבסטרקטי
         board: IBoardRepresentation = TextGridBoardAdapter(num_rows, num_cols)
@@ -55,9 +57,11 @@ class BoardParser:
                 if cell == EMPTY_CELL:
                     continue
                 
-                # ולידציהשל תו הלוח: בדיקה אם התו מייצג צבע וחלק חוקיים
+                # ולידציה של תו הלוח: בדיקה אם התו מייצג צבע וחלק חוקיים
                 if len(cell) != 2 or cell[0] not in VALID_COLORS or cell[1] not in VALID_PIECES:
-                    raise ValueError(ERROR_UNKNOWN_TOKEN)
+                    # הודעת שגיאה מפורטת לערוץ השגיאות הסטנדרטי \
+                    print(f"[DEBUG ERROR] Unknown token '{cell}' found at row {r_idx}, col {c_idx}.", file=sys.stderr)
+                    return TextGridBoardAdapter(0, 0, error_state=ERROR_UNKNOWN_TOKEN)
                 
                 board.set_piece(Position(r_idx, c_idx), Piece(symbol=cell))
 
