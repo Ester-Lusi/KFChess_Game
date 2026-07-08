@@ -9,8 +9,6 @@ env/
 
 # === VS Code המלצות הגדרה מקומיות ===
 .vscode/
-# הערה: אם תרצו לשתף קונפיגורציית דיבאג קבועה של הצוות, ניתן להסיר, 
-# אך מומלץ להתעלם כיוון שזה מכיל לרוב נתיבים מקומיים של המפתח.
 
 # === testing & Coverage ===
 .pytest_cache/
@@ -20,3 +18,13 @@ htmlcov/
 # === קבצי מערכת הפעלה מקומיים ===
 .DS_Store
 Thumbs.db
+
+# === Python local settings ===
+.mypy_cache/
+.pydantic_mysteries/
+*.pyc
+
+# === IDE custom configurations ===
+.idea/ 
+*.suo
+*.ntvs*
