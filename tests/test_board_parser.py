@@ -105,7 +105,7 @@ def test_board_encapsulation_and_state():
     )
 ])
 def test_parser_invalid_inputs_raise_value_error(invalid_input, expected_error_msg):
-    """מוודא שהמערכת זורקת חריגה מתאימה עם הודעת השגיאה הנכונה מהקונפיגורציה."""
+    # בודק שהפונקציה מעלה שגיאה עבור קלט לא חוקי, ושגיאת הערך תואמת את ההודעה הצפויה
     with pytest.raises(ValueError) as exc_info:
         BoardParser.parse_from_string(invalid_input)
     
