@@ -1,57 +1,53 @@
-
 from dataclasses import dataclass
 
-# בעתיד נוכל להוסיף כאן שדות נוספים כמו צבע החלקה, סוג החלקה, או אסטרטגיות תנועה
 @dataclass(frozen=True)
 class Position:
     row: int
     col: int
-from dataclasses import dataclass
 
-@dataclass(frozen=True)
+@dataclass
 class Piece:
-    symbol: str  
+    type: str
+    color: str
 
-    # פונקציה שמחזירה את צבע החלקה (לבן או שחור) על סמך הסימול שלה
     @property
-    def color(self) -> str:
-        return self.symbol[0] if len(self.symbol) > 0 else ""
+    def symbol(self):
+        # מחזיר אות גדולה ללבן ואות קטנה לשחור, ללא תחילית צבע
+        return self.type.upper() if self.color == 'w' else self.type.lower()
 
-    # פונקציה שמחזירה את סוג החלקה (מלך, צריח, רץ, מלכה, פרש) על סמך הסימול שלה
-    @property
-    def type(self) -> str:
-        return self.symbol[1].lower() if len(self.symbol) > 1 else ""
+    @classmethod
+    def from_symbol(cls, symbol: str):
+        # אם התו הוא אות גדולה, מניחים לבן, אחרת שחור
+        if len(symbol) == 1:
+            color = 'w' if symbol.isupper() else 'b'
+            return cls(type=symbol.upper(), color=color)
+        
+        # טיפול במקרה של 2 תווים (למשל "wR")
+        color = 'w' if symbol[0] == 'w' else 'b'
+        p_type = symbol[1]
+        return cls(type=p_type.upper(), color=color)
 
-# פונקציה שמבצעת בדיקה אם תנועת החלקה חוקית בהתאם לסוג החלקה
+# פונקציה שמבצעת בדיקה אם תנועת החלקה חוקית
 def is_legal_move(piece_type: str, start_row: int, start_col: int, end_row: int, end_col: int) -> bool:
-    # חישוב ההבדלים בין המיקום ההתחלתי למיקום הסופי
     dr = abs(end_row - start_row)
     dc = abs(end_col - start_col)
     
-    # מהלך של 0 משבצות אינו חוקי לתנועה
     if dr == 0 and dc == 0:
         return False
 
     p_type = piece_type.lower()
 
-    # המלך נע משבצת אחת לכל כיוון
     if p_type == 'k':  
         return dr <= 1 and dc <= 1
-    
-    # הצריח נע רק בשורות או בעמודות
     elif p_type == 'r': 
         return dr == 0 or dc == 0
-
-    # הרץ נע רק באלכסונים
     elif p_type == 'b':  
         return dr == dc
-
-    # המלכה נעה כמו צריח או רץ (ישר או אלכסון)
     elif p_type == 'q': 
         return (dr == 0 or dc == 0) or (dr == dc)
-
-    # L הפרש נע בצורת  
     elif p_type == 'n': 
         return (dr == 2 and dc == 1) or (dr == 1 and dc == 2)
-
+    elif p_type == 'p': 
+        return dr == 1 and dc == 0
+    
     return False
