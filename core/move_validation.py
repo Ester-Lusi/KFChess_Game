@@ -29,39 +29,46 @@ def is_legal_move(start: Position, end: Position, board: IBoardRepresentation) -
         return False
         
     target_piece = board.get_piece(end)
+
+    # לא ניתן לדרוס כלי של אותו צבע
     if target_piece and target_piece.color == moving_piece.color:
         return False
         
     dr = abs(end.row - start.row)
     dc = abs(end.col - start.col)
     
-    if moving_piece.type == 'k':
+    # כדי להבטיח זיהוי תקין גם אם הוזנו אותיות קטנות או גדולות
+    piece_type = moving_piece.type.upper()
+
+    if piece_type == 'K':
         return dr <= 1 and dc <= 1
         
-    elif moving_piece.type == 'q':
+    elif piece_type == 'Q':
         if not (dr == dc or start.row == end.row or start.col == end.col):
             return False
         return is_path_clear(start, end, board)
         
-    elif moving_piece.type == 'r':
+    elif piece_type == 'R':
         if not (start.row == end.row or start.col == end.col):
             return False
         return is_path_clear(start, end, board)
         
-    elif moving_piece.type == 'b': 
+    elif piece_type == 'B': 
         if dr != dc:
             return False
         return is_path_clear(start, end, board)
         
-    elif moving_piece.type == 'n':
+    elif piece_type == 'N':
         return (dr == 1 and dc == 2) or (dr == 2 and dc == 1)
         
-    elif moving_piece.type == 'p': 
+    elif piece_type == 'P': 
         direction = -1 if moving_piece.color == 'w' else 1
 
+        # תנועה קדימה למשבצת ריקה
         if start.col == end.col and (end.row - start.row) == direction:
             return target_piece is None
 
+        # הכאה באלכסון
         if dr == 1 and dc == 1 and (end.row - start.row) == direction:
             return target_piece is not None and target_piece.color != moving_piece.color
             

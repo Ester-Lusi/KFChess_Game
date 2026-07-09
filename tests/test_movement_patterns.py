@@ -9,20 +9,20 @@ from core.game_controller import RealTimeGameController
 # בדיקה של חוקיות המהלכים עבור כלים שונים במשחק השחמט
 class TestMovementPatterns(unittest.TestCase):
 
+    # פונקציה זו מאתחלת את סביבת הבדיקה עם לוח, שעון וקונטרולר
     def setUp(self):
-        # יצירת לוח, שעון וקונטרולר נקיים לטובת בדיקות האינטגרציה והחוסמים
         self.board = TextGridBoardAdapter(rows=8, cols=8)
         self.clock = SimulatedClock()
         self.controller = RealTimeGameController(self.board, self.clock)
-        
-        # לכידת תזרימי שגיאות (stderr) למקרה שהקונטרולר מדפיס לוגים בזמן אמת
         self.held_stderr = sys.stderr
         sys.stderr = StringIO()
 
+    # פונקציה זו משחזרת את מצב השגיאה של הסטנדרט לאחר כל בדיקה
     def tearDown(self):
-        # החזרת ה-stderr למצבו התקין
         sys.stderr = self.held_stderr
 
+
+    # פונקציה זו בודקת את חוקיות המהלכים של המלך
     def test_king_movement(self):
         # מלך נע משבצת אחת - חוקי
         self.assertTrue(is_legal_move('k', 4, 4, 5, 5))
@@ -31,6 +31,8 @@ class TestMovementPatterns(unittest.TestCase):
         self.assertFalse(is_legal_move('k', 4, 4, 4, 6))
         self.assertFalse(is_legal_move('k', 4, 4, 6, 6))
 
+
+    # פונקציה זו בודקת את חוקיות המהלכים של הצריח
     def test_rook_movement(self):
         # צריח נע קו ישר - חוקי
         self.assertTrue(is_legal_move('r', 0, 0, 0, 5))
@@ -38,6 +40,8 @@ class TestMovementPatterns(unittest.TestCase):
         # צריח נע באלכסון - לא חוקי
         self.assertFalse(is_legal_move('r', 0, 0, 3, 3))
 
+
+    # פונקציה זו בודקת את חוקיות המהלכים של הרץ
     def test_bishop_movement(self):
         # רץ נע באלכסון - חוקי
         self.assertTrue(is_legal_move('b', 2, 2, 5, 5))
@@ -45,6 +49,8 @@ class TestMovementPatterns(unittest.TestCase):
         # רץ נע ישר - לא חוקי
         self.assertFalse(is_legal_move('b', 2, 2, 2, 5))
 
+
+    # פונקציה זו בודקת את חוקיות המהלכים של החייל
     def test_queen_movement(self):
         # מלכה נעה ישר ובאלכסון - חוקי
         self.assertTrue(is_legal_move('q', 3, 3, 3, 7))
@@ -52,6 +58,8 @@ class TestMovementPatterns(unittest.TestCase):
         # מלכה נעה במהלך לא מוגדר - לא חוקי
         self.assertFalse(is_legal_move('q', 3, 3, 5, 4))
 
+
+    # פונקציה זו בודקת את חוקיות המהלכים של הפרש
     def test_knight_movement(self):
         # פרש נע בצורת L - חוקי
         self.assertTrue(is_legal_move('n', 4, 4, 6, 5))
@@ -64,8 +72,7 @@ class TestMovementPatterns(unittest.TestCase):
     def test_rook_blocked_by_piece(self):
         self.board.set_piece(Position(0, 0), Piece('r', 'w'))
         self.board.set_piece(Position(0, 3), Piece('p', 'b'))
-        
-        # תיקון קריאה בהתאם לחתימה של הפונקציה המיובאת מקובץ core/models.py
+
         self.assertTrue(is_legal_move('r', 0, 0, 0, 2))  
         self.assertTrue(is_legal_move('r', 0, 0, 0, 3)) 
 
@@ -108,7 +115,6 @@ class TestMovementPatterns(unittest.TestCase):
         self.controller.handle_cell_click(Position(3, 3))
 
         self.assertIsNone(self.board.get_piece(Position(0, 0)))
-        # תיקון: בדיקה שהכלי הוא חייל שחור ומיוצג על ידי האות הקטנה 'p' בארכיטקטורה
         self.assertEqual(self.board.get_piece(Position(3, 3)).symbol, "p")
         
         # קידום זמן לביצוע המהלך
@@ -116,7 +122,6 @@ class TestMovementPatterns(unittest.TestCase):
             
         landed_piece = self.board.get_piece(Position(3, 3))
         self.assertIsNotNone(landed_piece)
-        # תיקון: בדיקה שהכלי הנוחת הוא רץ לבן ומיוצג על ידי האות הגדולה 'B'
         self.assertEqual(landed_piece.symbol, "B")
 
 

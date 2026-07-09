@@ -6,6 +6,8 @@ from config.constants import EMPTY_CELL, ERROR_INVALID_DIMENSIONS, ERROR_EMPTY_I
 
 class BoardParser:
     @staticmethod
+    
+    # פונקציה זו מקבלת רשימת מחרוזות ומחזירה אובייקט שמיישם את ממשק הלוח
     def parse_from_string(lines: List[str]) -> IBoardRepresentation:
         board_lines = []
         for line in lines:

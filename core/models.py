@@ -11,18 +11,19 @@ class Piece:
     color: str
 
     @property
+    # מחזיר אות גדולה ללבן ואות קטנה לשחור, ללא תחילית צבע
     def symbol(self):
-        # מחזיר אות גדולה ללבן ואות קטנה לשחור, ללא תחילית צבע
         return self.type.upper() if self.color == 'w' else self.type.lower()
 
     @classmethod
+    # אם התו הוא אות גדולה, מניחים לבן, אחרת שחור
     def from_symbol(cls, symbol: str):
-        # אם התו הוא אות גדולה, מניחים לבן, אחרת שחור
+        # טיפול במקרה של תו אחד
         if len(symbol) == 1:
             color = 'w' if symbol.isupper() else 'b'
             return cls(type=symbol.upper(), color=color)
         
-        # טיפול במקרה של 2 תווים (למשל "wR")
+        # טיפול במקרה של 2 תווים 
         color = 'w' if symbol[0] == 'w' else 'b'
         p_type = symbol[1]
         return cls(type=p_type.upper(), color=color)

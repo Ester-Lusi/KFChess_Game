@@ -7,6 +7,7 @@ class CommandStreamProcessor:
     def __init__(self, controller: IGameController) -> None:
         self._controller = controller
 
+    # פונקציה זו מעבדת שורה אחת של פקודה ומבצעת את הפעולה המתאימה בבקר המשחק    
     def process_line(self, line: str) -> None:
         clean_line = line.strip()
         if not clean_line or clean_line.startswith("Commands:"):

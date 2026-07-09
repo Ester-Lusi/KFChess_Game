@@ -4,10 +4,6 @@ from core.models import Position
 from parsers.board_parser import BoardParser
 from config.constants import ERROR_INVALID_DIMENSIONS, ERROR_EMPTY_INPUT
 
-
-
-# --- מקרי קצה חיוביים (Happy Paths & Varied Dimensions) ---
-
 @pytest.mark.parametrize("input_lines, expected_dims, expected_canonical", [
     # לוח שחמט סטנדרטי עם רווחים בין התאים
     (
@@ -71,13 +67,6 @@ def test_board_encapsulation_and_state():
     assert piece_bottom_right.symbol == "k"
     assert empty_cell is None
 
-
-
-
-
-
-
-# --- מקרי קצה שליליים (Validation & Errors) ---
 
 @pytest.mark.parametrize("invalid_input, expected_error_msg", [
     # מקרה 1: שורות באורכים שונים (לוח לא מלבני)
