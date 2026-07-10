@@ -1,3 +1,4 @@
+
 import sys
 from typing import Optional, List, Dict, Any
 from config.constants import CELL_PIXEL_SIZE, STATE_ACTIVE, STATE_GAME_OVER
@@ -51,8 +52,7 @@ class RealTimeGameController(IGameController):
             piece = self._board.get_piece(start)
             if piece is not None:
                 arrival_time = self._clock.get_current_time() + 1000
-                self._board.set_piece(start, None)
-                
+
                 self._pending_moves.append({
                     'piece': piece,
                     'start': start,
@@ -74,6 +74,7 @@ class RealTimeGameController(IGameController):
         retained_moves = []
         for move in self._pending_moves:
             if current_time >= move['arrival_time']:
+                self._board.set_piece(move['start'], None)
                 self._board.set_piece(move['end'], move['piece'])
                 sys.stderr.write(f"Landed {move['piece'].symbol} at ({move['end'].row}, {move['end'].col})\n")
                 
@@ -89,4 +90,4 @@ class RealTimeGameController(IGameController):
     def print_board(self) -> None:
         print(self._board.to_canonical_string())
         if is_in_check(self._board, "white"): sys.stderr.write("White is in CHECK!\n") 
-        if is_in_check(self._board, "black"): sys.stderr.write("Black is in CHECK!\n") 
+        if is_in_check(self._board, "black"): sys.stderr.write("Black is in CHECK!\n")

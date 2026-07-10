@@ -113,17 +113,17 @@ class TestMovementPatterns(unittest.TestCase):
         self.assertEqual(self.controller._selected_position, Position(0, 0))
         
         self.controller.handle_cell_click(Position(3, 3))
-
-        self.assertIsNone(self.board.get_piece(Position(0, 0)))
+        
+        self.assertIsNotNone(self.board.get_piece(Position(0, 0)))
         self.assertEqual(self.board.get_piece(Position(3, 3)).symbol, "p")
         
-        # קידום זמן לביצוע המהלך
         self.controller.handle_wait(1000)
-            
+        
+        self.assertIsNone(self.board.get_piece(Position(0, 0))) # המקור התפנה
+        
         landed_piece = self.board.get_piece(Position(3, 3))
         self.assertIsNotNone(landed_piece)
         self.assertEqual(landed_piece.symbol, "B")
-
-
+        
 if __name__ == '__main__':
     unittest.main()

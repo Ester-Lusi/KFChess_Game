@@ -12,6 +12,7 @@ VALID_COLORS = {'w', 'b'}
 VALID_PIECES = {'K', 'Q', 'R', 'B', 'N', 'P'}
 
 CELL_PIXEL_SIZE = 100
+DEFAULT_MOVE_DURATION = 1000
 
 CMD_CLICK = "click"
 CMD_WAIT = "wait"
@@ -19,6 +20,7 @@ CMD_PRINT = "print board"
 
 STATE_ACTIVE = "ACTIVE"
 STATE_GAME_OVER = "GAME_OVER"
+
 
 # הודעות שגיאה קבועות
 ERROR_UNKNOWN_TOKEN = "ERROR UNKNOWN_TOKEN"
