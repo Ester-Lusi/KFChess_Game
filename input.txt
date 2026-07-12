@@ -1,0 +1,23 @@
+r n b q k b n r
+p p p p p p p p
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+P P P P P P P P
+R N B Q K B N R
+Commands:
+print board
+click 550 650
+click 550 550
+wait 1000
+click 450 150
+click 450 250
+wait 1000
+click 650 650
+click 650 450
+wait 1000
+click 350 50
+click 750 450
+wait 1000
+print board
