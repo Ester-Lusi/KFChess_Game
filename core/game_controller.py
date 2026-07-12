@@ -1,3 +1,4 @@
+
 import sys
 from typing import Optional, List, Dict, Any
 from config.constants import CELL_PIXEL_SIZE, STATE_ACTIVE, STATE_GAME_OVER
@@ -15,6 +16,7 @@ class RealTimeGameController(IGameController):
         self._pending_moves: List[Dict[str, Any]] = []
         self.game_state = STATE_ACTIVE
 
+
     def handle_click(self, x: int, y: int) -> None:
         if self.game_state == STATE_GAME_OVER or self._board.error_state or x < 0 or y < 0: 
             return
@@ -31,7 +33,6 @@ class RealTimeGameController(IGameController):
 
     # טיפול בלחיצה על תא בלוח
     def handle_cell_click(self, target_pos: Position) -> None:
-        # כלל תנועה פעילה אחת וחסימת ניתוב מחדש: אם יש תנועה באוויר, נדחה כל פקודה חדשה וננקה בחירה
         if len(self._pending_moves) > 0:
             sys.stderr.write("Motion in progress. Order discarded.\n")
             self._selected_position = None
@@ -46,25 +47,29 @@ class RealTimeGameController(IGameController):
             return  
 
         start = self._selected_position
+        moving_piece = self._board.get_piece(start)
+        if moving_piece is None:
+            self._selected_position = None
+            return
         
         # אימות חוקיות
         is_geom_legal = type(self._board).__name__ == 'MockBoardRepresentation' or is_legal_move(start, target_pos, self._board)
         
+        color_key = moving_piece.color[0].lower() if moving_piece.color else 'w'
+
         # בדיקה אם המלך יכול להיות מאויים לאחר המהלך
-        would_be_check = would_be_in_check_after_move(self._board, (start, target_pos), self._board.get_piece(start).color) 
+        would_be_check = would_be_in_check_after_move(self._board, (start, target_pos), color_key) 
 
         if is_geom_legal and not would_be_check: 
-            piece = self._board.get_piece(start)
-            if piece is not None:
-                arrival_time = self._clock.get_current_time() + 1000
+            arrival_time = self._clock.get_current_time() + 1000
 
-                self._pending_moves.append({
-                    'piece': piece,
-                    'start': start,
-                    'end': target_pos,
-                    'arrival_time': arrival_time
-                })
-                sys.stderr.write(f"Dispatched {piece.symbol} to ({target_pos.row}, {target_pos.col})\n")
+            self._pending_moves.append({
+                'piece': moving_piece,
+                'start': start,
+                'end': target_pos,
+                'arrival_time': arrival_time
+            })
+            sys.stderr.write(f"Dispatched {moving_piece.symbol} to ({target_pos.row}, {target_pos.col})\n")
             self._selected_position = None
         else:
             self._selected_position = None
@@ -83,11 +88,15 @@ class RealTimeGameController(IGameController):
                 self._board.set_piece(move['end'], move['piece'])
                 sys.stderr.write(f"Landed {move['piece'].symbol} at ({move['end'].row}, {move['end'].col})\n")
                 
+                # נרמול הצבע הנוכחי וחישוב צבע היריב
+                p_color = move['piece'].color
+                color_key = 'w' if p_color.lower().startswith('w') else 'b'
+                opponent_key = 'b' if color_key == 'w' else 'w'
+                
                 # בדיקת סיום משחק לאחר נחיתת כלי
-                opponent_color = "black" if move['piece'].color == "white" else "white"
-                if is_checkmate(self._board, opponent_color): 
+                if is_checkmate(self._board, opponent_key): 
                     self.game_state = STATE_GAME_OVER
-                    sys.stderr.write(f"CHECKMATE! {move['piece'].color.upper()} wins.\n")
+                    sys.stderr.write(f"CHECKMATE! {p_color.upper()} wins.\n")
             else:
                 retained_moves.append(move)
         # אחרי כל הנחיתות, נעדכן את רשימת התנועות הממתינות
@@ -95,5 +104,7 @@ class RealTimeGameController(IGameController):
 
     def print_board(self) -> None:
         print(self._board.to_canonical_string())
-        if is_in_check(self._board, "white"): sys.stderr.write("White is in CHECK!\n") 
-        if is_in_check(self._board, "black"): sys.stderr.write("Black is in CHECK!\n")
+        if is_in_check(self._board, "w") or is_in_check(self._board, "white"): 
+            sys.stderr.write("White is in CHECK!\n") 
+        if is_in_check(self._board, "b") or is_in_check(self._board, "black"): 
+            sys.stderr.write("Black is in CHECK!\n")

@@ -1,3 +1,4 @@
+# tests/test_threats.py
 from core.board import TextGridBoardAdapter 
 from core.models import Position, Piece
 from core.threats import is_in_check, is_checkmate
@@ -10,7 +11,6 @@ def test_check_detection():
     board.set_piece(Position(1, 2), Piece('N', 'b'))
 
     assert is_in_check(board, "w") == True
-
 
 # פונקציה זו בודקת אם המלך במצב של מט - כלומר אם הוא מאוים ואין לו מהלכים חוקיים להימלט מהם
 def test_checkmate_logic():
