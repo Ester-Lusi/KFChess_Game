@@ -1,11 +1,10 @@
-
 import sys
 from typing import Optional, List, Dict, Any
 from config.constants import CELL_PIXEL_SIZE, STATE_ACTIVE, STATE_GAME_OVER
 from core.interfaces import IClock, IGameController, IBoardRepresentation
 from core.models import Position
 from core.move_validation import is_legal_move
-from core.threats import would_be_in_check_after_move, is_in_check, is_checkmate ### CHANGED ###
+from core.threats import would_be_in_check_after_move, is_in_check, is_checkmate
 
 class RealTimeGameController(IGameController):
 
@@ -84,17 +83,25 @@ class RealTimeGameController(IGameController):
         retained_moves = []
         for move in self._pending_moves:
             if current_time >= move['arrival_time']:
+                target_pos = move['end']
+                captured_piece = self._board.get_piece(target_pos)
+                
+                # בדיקת אכילת מלך - סיום משחק מיידי
+                if captured_piece and captured_piece.type.upper() == 'K':
+                    self.game_state = STATE_GAME_OVER
+                    sys.stderr.write(f"GAME OVER! {move['piece'].color.upper()} captured the King.\n")
+                
                 self._board.set_piece(move['start'], None)
-                self._board.set_piece(move['end'], move['piece'])
-                sys.stderr.write(f"Landed {move['piece'].symbol} at ({move['end'].row}, {move['end'].col})\n")
+                self._board.set_piece(target_pos, move['piece'])
+                sys.stderr.write(f"Landed {move['piece'].symbol} at ({target_pos.row}, {target_pos.col})\n")
                 
                 # נרמול הצבע הנוכחי וחישוב צבע היריב
                 p_color = move['piece'].color
                 color_key = 'w' if p_color.lower().startswith('w') else 'b'
                 opponent_key = 'b' if color_key == 'w' else 'w'
                 
-                # בדיקת סיום משחק לאחר נחיתת כלי
-                if is_checkmate(self._board, opponent_key): 
+                # בדיקת סיום משחק (שח-מט) לאחר נחיתת כלי, רק אם המלך טרם נאכל
+                if self.game_state != STATE_GAME_OVER and is_checkmate(self._board, opponent_key): 
                     self.game_state = STATE_GAME_OVER
                     sys.stderr.write(f"CHECKMATE! {p_color.upper()} wins.\n")
             else:

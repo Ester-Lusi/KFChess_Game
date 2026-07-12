@@ -1,12 +1,14 @@
-import pytest
+
 from core.models import Position
 from core.clock import SimulatedClock
 from core.game_controller import RealTimeGameController
+from config.constants import STATE_GAME_OVER
 
 class MockPiece:
-    def __init__(self, symbol: str, color: str):
+    def __init__(self, symbol: str, color: str, p_type: str = ""):
         self.symbol = symbol
         self.color = color
+        self.type = p_type if p_type else symbol
 
 class MockBoardRepresentation:
     def __init__(self) -> None:
@@ -49,10 +51,6 @@ class MockBoardRepresentation:
 
 
 def test_single_active_motion_and_ignore_redirect():
-    """
-    כלל 1 + 2: בודק שלא ניתן לבצע מהלך נוסף או לשנות כיוון/ניתוב מחדש 
-    של כלי בזמן שיש כבר תנועה פעילה אחת באוויר.
-    """
     board = MockBoardRepresentation()
     clock = SimulatedClock()
     controller = RealTimeGameController(board, clock)
@@ -62,31 +60,19 @@ def test_single_active_motion_and_ignore_redirect():
     board.set_piece(Position(1, 1), pawn)
     board.set_piece(Position(0, 0), rook)
 
-    # מהלך ראשון: בחירה והזנקה של הרגלי מ-(1,1) ל-(2,1) -> (CELL_PIXEL_SIZE = 100)
-    controller.handle_click(150, 150)  # קליק ראשון - בחירת הרגלי ב-(1,1)
-    controller.handle_click(150, 250)  # קליק שני - הזנקה למשבצת (2,1)
+    controller.handle_click(150, 150)
+    controller.handle_click(150, 250)
     
-    # וידאו שהמהלך הראשון נקלט ונמצא באוויר
     assert len(controller._pending_moves) == 1
     
-    # ניסיון הפרה: לחיצה על כלי אחר (הצריח ב-0,0) בזמן שהרגלי עדיין בתנועה
     controller.handle_click(50, 50) 
-    
-    # וידאו שהבחירה נחסמה והתנקה המצב (Ignore Redirect וביטול בחירה מיידי)
     assert controller._selected_position is None
     
-    # ניסיון הפרה נוסף: ניסיון פקודת תנועה נוספת ללא בחירה חוקית
     controller.handle_click(50, 150)
-    
-    # וידאו שלא התווספו מהלכים חדשים ותור התנועות נשאר על מהלך יחיד מקסימום
     assert len(controller._pending_moves) == 1
 
 
 def test_zero_cooldown_immediate_subsequent_move():
-    """
-    כלל 3: בודק שמיד ברגע הגעת הכלי ליעדו וניקוי התנועה הפעילה,
-    ניתן לבצע מהלך חדש לחלוטין באותו שבריר שנייה ללא כל השהיית צינון (Zero Cooldown).
-    """
     board = MockBoardRepresentation()
     clock = SimulatedClock()
     controller = RealTimeGameController(board, clock)
@@ -94,22 +80,46 @@ def test_zero_cooldown_immediate_subsequent_move():
     pawn = MockPiece(symbol="P", color="white")
     board.set_piece(Position(1, 1), pawn)
 
-    # שלב א': ביצוע מהלך ראשון מ-(1,1) ל-(2,1)
     controller.handle_click(150, 150)
     controller.handle_click(150, 250)
     assert len(controller._pending_moves) == 1
 
-    # שלב ב': קידום השעון ב-1000 מילישניות לסיום מלא של התנועה ונחיתה אטומית
     controller.handle_wait(1000)
     assert len(controller._pending_moves) == 0
     assert board.get_piece(Position(2, 1)) == pawn
 
-    # שלב ג': ביצוע מיידי של מהלך שני מ-(2,1) ל-(3,1) באותו הרגע ללא שום קולדאון
-    controller.handle_click(150, 250)  # בחירה מחדש במיקום הנחיתה החדש
-    controller.handle_click(150, 350)  # פקודת תנועה למשבצת הבאה (3,1)
+    controller.handle_click(150, 250)
+    controller.handle_click(150, 350)
     
-    # וידאו שהמהלך השני התקבל ואושר בהצלחה ללא כל שגיאה או חסימת זמן
     assert len(controller._pending_moves) == 1
     assert controller._pending_moves[0]['piece'] == pawn
     assert controller._pending_moves[0]['start'] == Position(2, 1)
     assert controller._pending_moves[0]['end'] == Position(3, 1)
+
+
+def test_king_capture_ends_game():
+    board = MockBoardRepresentation()
+    clock = SimulatedClock()
+    controller = RealTimeGameController(board, clock)
+
+    attacker = MockPiece(symbol="R", color="white", p_type="R")
+    king = MockPiece(symbol="k", color="black", p_type="K")
+    
+    board.set_piece(Position(0, 0), attacker)
+    board.set_piece(Position(0, 1), king)
+
+    # ביצוע אכילה
+    controller.handle_click(50, 50) # בחירת הצריח ב-(0,0)
+    controller.handle_click(150, 50) # יעד אכילה (0,1)
+    
+    controller.handle_wait(1000)
+    
+    # וידוא סיום משחק
+    assert controller.game_state == STATE_GAME_OVER
+    
+    # ניסיון לבצע מהלך נוסף לאחר סיום משחק
+    controller.handle_click(150, 50) # בחירת המיקום החדש
+    controller.handle_click(150, 150) # ניסיון תנועה
+    
+    # וידוא שלא התווספו מהלכים עקב חסימת ה-game_state
+    assert len(controller._pending_moves) == 0
