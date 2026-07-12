@@ -41,19 +41,18 @@ class TextGridBoardAdapter(IBoardRepresentation):
         return self._error_state
 
 
-    # מחזיר את ייצוג הלוח כמחרוזת קנונית
     def to_canonical_string(self) -> str:
-        if self._error_state:
-            return self._error_state
-
+        if self.error_state:
+            return self.error_state
+        
         lines = []
         for row in self._grid:
-            row_str = SPACE.join(
-                (piece.symbol if piece else EMPTY_CELL) for piece in row
+            # כאן אנחנו משלבים את הצבע והסוג שמוגדרים באובייקט הכלי
+            row_str = " ".join(
+                (f"{piece.color}{piece.type}" if piece else "..") for piece in row
             )
             lines.append(row_str)
-        return NEWLINE.join(lines)
-    
+        return "\n".join(lines)
 
     # יוצר עותק של הלוח הנוכחי
     def clone(self) -> 'TextGridBoardAdapter':

@@ -13,7 +13,8 @@ class CommandStreamProcessor:
         if not clean_line or clean_line.startswith("Commands:"):
             return
 
-        if clean_line == CMD_PRINT:
+        # תיקון: השוואה גמישה יותר לזיהוי פקודת ההדפסה
+        if clean_line.upper() == "PRINT_BOARD" or clean_line == CMD_PRINT:
             self._controller.print_board()
             return
 

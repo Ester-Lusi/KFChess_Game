@@ -1,12 +1,9 @@
-# דוגמה לתוכן input.txt
-# הגדרת לוח ראשוני
 INIT_BOARD 8 8
 ADD_PIECE 0 0 wP
 ADD_PIECE 0 1 bP
-# הפעלת Jump על הרגלי הלבן
+
+Commands:
+PRINT_BOARD
 JUMP 0 0
-# הזזת רגלי שחור לתא של הלבן
 MOVE 0 1 0 0
-# המתנה למימוש האכילה
-WAIT 500
 PRINT_BOARD
