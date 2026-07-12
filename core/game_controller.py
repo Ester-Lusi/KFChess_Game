@@ -1,4 +1,3 @@
-
 import sys
 from typing import Optional, List, Dict, Any
 from config.constants import CELL_PIXEL_SIZE, STATE_ACTIVE, STATE_GAME_OVER
@@ -17,7 +16,7 @@ class RealTimeGameController(IGameController):
         self.game_state = STATE_ACTIVE
 
     def handle_click(self, x: int, y: int) -> None:
-        if self.game_state == STATE_GAME_OVER or self._board.error_state or x < 0 or y < 0: ### CHANGED ###
+        if self.game_state == STATE_GAME_OVER or self._board.error_state or x < 0 or y < 0: 
             return
 
         col = x // CELL_PIXEL_SIZE
@@ -32,6 +31,12 @@ class RealTimeGameController(IGameController):
 
     # טיפול בלחיצה על תא בלוח
     def handle_cell_click(self, target_pos: Position) -> None:
+        # כלל תנועה פעילה אחת וחסימת ניתוב מחדש: אם יש תנועה באוויר, נדחה כל פקודה חדשה וננקה בחירה
+        if len(self._pending_moves) > 0:
+            sys.stderr.write("Motion in progress. Order discarded.\n")
+            self._selected_position = None
+            return
+
         if self._selected_position is None:
             piece = self._board.get_piece(target_pos)
             # לוודא שבוחרים רק כלים של השחקן התורן
@@ -46,7 +51,7 @@ class RealTimeGameController(IGameController):
         is_geom_legal = type(self._board).__name__ == 'MockBoardRepresentation' or is_legal_move(start, target_pos, self._board)
         
         # בדיקה אם המלך יכול להיות מאויים לאחר המהלך
-        would_be_check = would_be_in_check_after_move(self._board, (start, target_pos), self._board.get_piece(start).color) ### CHANGED ###
+        would_be_check = would_be_in_check_after_move(self._board, (start, target_pos), self._board.get_piece(start).color) 
 
         if is_geom_legal and not would_be_check: 
             piece = self._board.get_piece(start)
@@ -85,6 +90,7 @@ class RealTimeGameController(IGameController):
                     sys.stderr.write(f"CHECKMATE! {move['piece'].color.upper()} wins.\n")
             else:
                 retained_moves.append(move)
+        # אחרי כל הנחיתות, נעדכן את רשימת התנועות הממתינות
         self._pending_moves = retained_moves
 
     def print_board(self) -> None:

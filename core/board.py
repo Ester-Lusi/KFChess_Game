@@ -14,20 +14,20 @@ class TextGridBoardAdapter(IBoardRepresentation):
         self._error_state = error_state
 
 
-    # IBoardRepresentation יישום של הממשק 
+    # פונקציה זו מאפשרת להגדיר כלי מסוים במיקום מסוים על הלוח
     def set_piece(self, position: Position, piece: Optional[Piece]) -> None:
         if self.is_within_bounds(position):
             self._grid[position.row][position.col] = piece
 
 
-    # IBoardRepresentation יישום של הממשק 
+    # פונקציה זו מאפשרת לקבל את הכלי במיקום מסוים על הלוח
     def get_piece(self, position: Position) -> Optional[Piece]:
         if not self.is_within_bounds(position):
             return None
         return self._grid[position.row][position.col]
 
 
-    # IBoardRepresentation יישום של הממשק 
+    # פונקציה ז  מחזירה את מימדי הלוח
     def get_dimensions(self) -> Tuple[int, int]:
         return self._rows, self._cols
 

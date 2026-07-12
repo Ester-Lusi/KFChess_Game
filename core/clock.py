@@ -16,3 +16,6 @@ class SimulatedClock(IClock):
     # מאפשר לקבל את הזמן הנוכחי במילישניות
     def get_current_time(self) -> int:
         return self._current_time_ms
+    
+
+    
