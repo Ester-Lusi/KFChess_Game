@@ -9,6 +9,7 @@ class Position:
 class Piece:
     type: str
     color: str
+    is_airborne: bool = False 
 
     @property
     # מחזיר אות גדולה ללבן ואות קטנה לשחור, ללא תחילית צבע
